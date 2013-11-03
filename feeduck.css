@@ -188,6 +188,10 @@
   width: 100px;
 }
 
+#feeduck iframe {
+  display: none;
+}
+
 #feeduck .button {
   border: 1px solid #b2afa5;
   border-color: #e1e0dc #c9c8c1 #b2afa5;
