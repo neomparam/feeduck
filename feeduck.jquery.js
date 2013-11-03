@@ -1,8 +1,9 @@
 (function() {
     window.Feeduck = (function() {
         var _initialized = false;
+        var _submitted = false;
+
         function Feeduck() {}
-        Feeduck.submitted = false;
 
         Feeduck.init = function(options) {
             var feedback = new this();
@@ -15,41 +16,6 @@
             }
         };
 
-        /*
-            <div id="feeduck">
-                <div class="feedback-container expanded">
-                    <div class="form">
-                        <textarea class="input" placeholder="건의사항"></textarea>
-                        <div class="actions">
-                            <button class="button submit">Send</button>
-                        </div>
-                    </div>
-                    <div class="success">thanks!</div>
-                </div>
-            </div>
-         */
-        /*
-            <div id="feeduck">
-                <div id="feeduck-anchor">
-                    <div class="feedback-container expanded">
-                        <div class="form">
-                            <textarea class="input" placeholder="건의사항"></textarea>
-                            <div class="actions">
-                                <button class="button submit">Send</button>
-                            </div>
-                        </div>
-                        <div class="success">thanks!</div>
-                    </div>
-                </div>
-
-                <iframe name="feeduck-iframe" id="feeduck-iframe" style="display:none;" onload="if(Feeduck.submitted) {alert('ok');}"></iframe>
-
-                <form id="feedback-form" action="https://docs.google.com/forms/d/1ofpLhkCygELMQYxEzob-9gTubmHqlRa-vhSUMxJaGOg/formResponse" method="POST" target="feedback-iframe" onsubmit="Feeduck.submitted=true;">
-                    <textarea name="entry.2016345497" rows="8" cols="0" class="ss-q-long" id="entry_2016345497" dir="auto"></textarea>
-                </form>
-            </div>
-         */
-
         Feeduck.prototype.default_options = {
             //placeholder: 'Feedback? Let us know here.',
             //thanks_message: "<p>Thanks for your feedback!</p>\n<div class=\"indent\">\n  - siong1987\n</div>",
@@ -60,26 +26,44 @@
             send_callback: function(text) {}
         };
 
+        /*
+            <div id="feeduck">
+                <div id="feeduck-anchor">
+                    <div class="feedback-container expanded">
+                         <form id='feeduck-form' class='form' action='https://docs.google.com/forms/d/FORMID/formResponse' method='POST' target='feeduck-iframe'>
+                             <textarea name='entry.ENTRYID' id='entry_ENTRYID' class='input' placeholder='" + opts.placeholder + "'></textarea>
+                             <div class='actions'>
+                                 <button class='button submit'>" + opts.button_name + "</button>
+                             </div>
+                         </form>
+                        <div class="success">thanks!</div>
+                    </div>
+                </div>
+                <iframe name="feeduck-iframe" id="feeduck-iframe"></iframe>
+            </div>
+         */
+
         Feeduck.prototype.createFeedbackBox = function(opts) {
-            return $('#feeduck').html("" + 
+            var feeduck = $('#feeduck');
+
+            // create one if doesn't exist
+            if (feeduck.length === 0) {
+                feeduck = $('<div id="feeduck"/>').appendTo($('body'));
+            }
+
+            return feeduck.html("" + 
                     "<div id='feeduck-anchor'>\n" + 
                     "  <div class='feeduck-container'>\n" + 
-                    "    <div class='form'>\n" + 
-                    "      <textarea class='input' placeholder='" + opts.placeholder + "'></textarea>\n" + 
-                    "      <div class='actions'>\n" + 
-                    "        <button class='button submit'>" + opts.button_name + "</button>\n" + 
-                    "      </div>\n" + 
-                    "    </div>\n" + 
+                    "    <form id='feeduck-form' class='form' action='https://docs.google.com/forms/d/" + opts.form_id + "/formResponse' method='POST' target='feeduck-iframe'>\n" +
+                    "        <textarea name='entry." + opts.entry_id + "' id='entry_" + opts.entry_id + "' class='input' placeholder='" + opts.placeholder + "'></textarea>\n" + 
+                    "        <div class='actions'>\n" + 
+                    "            <button class='button submit'>" + opts.button_name + "</button>\n" + 
+                    "        </div>\n" + 
+                    "    </form>\n" + 
                     "    <div class='success'>" + opts.thanks_message + "</div>\n" + 
-                    "  </div>" + 
-                    "</div>" + 
-
-                    "<iframe name='feeduck-iframe' id='feeduck-iframe' style='display:none;' onload='if(Feeduck.submitted) {}'></iframe>\n" +
-
-                    "<form id='feeduck-form' action='https://docs.google.com/forms/d/" + opts.form_id + "/formResponse' method='POST' target='feedback-iframe' onsubmit='Feeduck.submitted=true;' style='display: none;'>\n" +
-                    "    <textarea name='entry." + opts.entry_id + "' rows='8' cols='0' class='ss-q-long' id='entry_" + opts.entry_id + "' dir='auto'></textarea>\n" +
-                    "</form>\n" +
-
+                    "  </div>\n" + 
+                    "</div>\n" + 
+                    "<iframe name='feeduck-iframe' id='feeduck-iframe'></iframe>\n" +
                     "");
         };
 
@@ -99,20 +83,31 @@
                 }
             });
 
-            // add .success-state on send button
-            return $(document).on('click', '#feeduck .button', function() {
-                var container = $("#feeduck");
-                var textarea  = container.find('textarea');
-                if (textarea.val() !== '') {
-                    $(this).closest('.feeduck-container').addClass('success-state');
+            // validate
+            $(document).on('click', '#feeduck .button', function(e) {
+                var textarea = $("#feeduck textarea");
+                if (textarea.val() === '') {
+                    e.preventDefault();
+                }
+            });
+
+            // flag submitted
+            $('#feeduck form').on('submit', function(e) {
+                _submitted = true;
+            });
+
+            // add .success-state on send
+            $('#feeduck-iframe').on('load', function() {
+                if (_submitted) {
+                    var feeduck = $("#feeduck");
+                    var textarea  = feeduck.find('textarea');
+                    var container = feeduck.find('.feeduck-container');
+
                     // callback
-                    var form = $('form#feeduck-form');
-                    form.find('textarea').text(textarea.val());
-                    form.submit();
-                    // user callback
                     opts.send_callback(textarea.val());
 
-                    // restore after 5s
+                    // reshrink size after 5s
+                    container.addClass('success-state');
                     return setTimeout(function() {
                         textarea.val('');
                         return container.removeClass('success-state expanded');
