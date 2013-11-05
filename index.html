@@ -11,23 +11,46 @@
     <![endif]-->
     <title>Feeduck</title>
   	<script type="text/javascript">
-  		function create_form() {
+  		function create_form()
+      {
   			var url = "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec";
   			var script = document.createElement("script");
   			script.setAttribute('type', 'text/javascript');
   			script.setAttribute('src', url + "?title=" + document.getElementById("title").value);
   			
   			document.getElementsByTagName('head')[0].appendChild(script);
-  			
+
+        $("#loading").show();
+
   			return false;
   		}
   		
-  		function onJsonpResponse(form_id, entry_id) {
+  		function onJsonpResponse(form_id, entry_id)
+      {
+        $("#loading").hide();
+
         var code = $("#code");
         code.text("<script type=\"text/javascript\" src=\"http://neomparam.github.io/feeduck/feeduck.js\"></scr" + "ipt><script>Feeduck.init({form_id:\""+form_id+"\",entry_id:\""+entry_id+"\"})</scr" + "ipt>");
+
+        loadFiles(function(files) {
+            var ul = $("#files");
+            ul.html("");
+
+            for ( var i = 0 ; i < files.length; i++ )
+            {
+              var f = files[i];
+              if ( f == undefined )
+                continue;
+
+              var li = $("<li></li>");
+              li.text(f.title);
+              li.appendTo(ul);
+            }
+        });
   		}
 
-      function handleClientLoad() {
+      function handleClientLoad()
+      {
         gapi.client.load('drive', 'v2');
         window.setTimeout(checkAuth, 1);
       }
@@ -38,12 +61,14 @@
         'immediate': true
       };
 
-      function checkAuth() {
+      function checkAuth()
+      {
         config.immediate = true;
         gapi.auth.authorize(config, resultAuth);
       }
 
-      function resultAuth(authResult) {
+      function resultAuth(authResult)
+      {
         if ( authResult && !authResult.error )
         {
           $("#panLogin").hide();
@@ -59,11 +84,12 @@
                 continue;
 
               var li = $("<li></li>");
-              // li.text(f.title + " - " + f.id);
               li.text(f.title);
               li.appendTo(ul);
             }
           });
+
+          // startWatch();
         }
         else
         {
@@ -76,7 +102,31 @@
         }
       }
 
-      function loadFiles(callback) {
+      var largestChangeId;
+
+      function startWatch()
+      {
+        var request = gapi.client.drive.changes.list({includeDeleted: false, includeSubscribed: false, maxResults: 1});
+        request.execute(function(resp) {
+          largestChangeId = resp.largestChangeId + 1;
+          setTimeout(watching, 100);
+        });
+      }
+
+      function watching()
+      {
+        var request = gapi.client.drive.changes.list({pageToken: largestChangeId});
+        request.execute(function(resp) {
+          if ( largestChangeId == resp.largestChangeId )
+          {
+          }
+          largestChangeId = resp.largestChangeId + 1;
+          setTimeout(watching, 1000);
+        });
+      }
+
+      function loadFiles(callback)
+      {
         var retrievePageOfFiles = function(request, result) {
           request.execute(function(resp) {
             if ( !resp )
@@ -95,10 +145,10 @@
               callback(result);
             }
           });
-        }        
+        }
         
-        var initialRequest = gapi.client.drive.files.list({'q': 'mimeType = "application/vnd.google-apps.form" and trashed = false and "root" in parents', 'fields':'items(fileExtension,id,mimeType,title)'});
-//        var initialRequest = gapi.client.drive.files.list({'maxResults': 100, 'q': 'mimeType = "application/vnd.google-apps.folder" and trashed = false and "root" in parents'});
+       var initialRequest = gapi.client.drive.files.list({'q': 'mimeType = "application/vnd.google-apps.form" and trashed = false and "root" in parents', 'fields':'items(fileExtension,id,mimeType,title)'});
+        // var initialRequest = gapi.client.drive.files.list({'maxResults': 100, 'q': 'mimeType = "application/vnd.google-apps.folder" and trashed = false and "root" in parents'});
         retrievePageOfFiles(initialRequest, []);
       }
 
@@ -137,14 +187,14 @@ function watchChange(channelId, channelType, channelAddress) {
 
   var request = gapi.client.drive.changes.watch({
     'resource': resource
-  });
+  }, function() {});
 console.log(request);
   request.execute(function(channel){console.log(channel);});
 }
 
       $(function() {
         $("#btnWatch").click(function() {
-          watchChange("4ba78bf0-6a47-11e2-bcfd-0800200c9a77", "asdfdas", "192.168.0.1");
+//          watchChange("4ba78bf0-6a47-11e2-bcfd-0800200c9a77", "web_hook", "http://www.mistyhand.com/notification");
           // retrieveAllChanges(function(result) {
           //   console.log(result);
           // });
@@ -159,7 +209,7 @@ console.log(request);
         <h1>Feeduck</h1>
       </header>
       <div id="panLogin">
-        <!--button type="button" id="btnLogin" class="btn">Login with Google.</button-->
+        <button type="button" id="btnLogin" class="btn">Login with Google.</button>
       </div>
       <div id="panMain" style="display:none">
         <div class="jumbotron">
@@ -168,7 +218,7 @@ console.log(request);
               <label class="sr-only" for="title">Title</label>
               <input type="text" class="form-control" name="title" id="title" placeholder="제목을 입력하세요."/>
             </div>
-            <button type="submit" class="btn btn-default">Submit</button>
+            <button type="submit" class="btn btn-default">Submit</button><img id="loading" src="http://i.stack.imgur.com/FhHRx.gif" style="display:none;margin-left:20px;"/>
           </form>
           <div id="response">
             <label>아래의 코드를 복붙하세요.</label>
