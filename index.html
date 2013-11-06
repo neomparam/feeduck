@@ -38,6 +38,9 @@
         setProgress(0);
         $("#progress_create").show();
         $("#response").hide();
+        $("#form_create input[type=text]").blur();
+        $("#form_create input[type=text]").prop("disabled", true);
+        $("#form_create button[type=submit]").prop("disabled", true);
 
         var progress = function() {
           var p = $("#progress_create .progress-bar");
@@ -56,6 +59,8 @@
       {
         $("#progress_create").hide();
         $("#response").show();
+        $("#form_create input[type=text]").prop("disabled", false);
+        $("#form_create button[type=submit]").prop("disabled", false);
 
         var code = $("#code");
         code.text('' +
@@ -208,7 +213,7 @@
         </div>
         <div id="page_main" class="page">
           <div class="jumbotron">
-            <form class="" role="form" id="" name="" action="#" onsubmit="return create_form();">
+            <form class="" role="form" id="form_create" name="" action="#" onsubmit="return create_form();">
               <div class="form-group">
                 <label for="title">Form Title</label>
                 <input type="text" class="form-control input-lg" name="title" id="title" placeholder="제목을 입력하세요."/>
@@ -220,7 +225,7 @@
             </form>
             <div id="response" style="display:none;margin-top:20px;">
               <label>Form이 생성되었습니다. 아래의 코드를 붙여넣기 하세요.</label>
-              <textarea id="code" class="form-control" rows="5"></textarea>
+              <textarea id="code" class="form-control" rows="13"></textarea>
             </div>
           </div>
           <h2>Forms<!--button type="button" id="btn_create" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modal_create">Create Form</button--></h2>
