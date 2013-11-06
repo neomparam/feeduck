@@ -11,6 +11,14 @@
     <![endif]-->
     <title>Feeduck</title>
   	<script type="text/javascript">
+      function setProgress(v, text) {
+        var p = $("#progress_create .progress-bar");
+        if ( v > 100 ) v = 100;
+        if ( v < 0 ) v = 0;
+        p.attr("aria-valuenow", v);
+        p.width(v+"%");
+      }
+
   		function create_form()
       {
   			var url = "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec";
@@ -20,39 +28,38 @@
   			
   			document.getElementsByTagName('head')[0].appendChild(script);
 
-        $("#loading").show();
+
+        setProgress(0);
+        $("#progress_create").show();
+        $("#response").hide();
+
+        var progress = function() {
+          var p = $("#progress_create .progress-bar");
+          var v = parseInt(p.attr("aria-valuenow")) + 1;
+          setProgress(v);
+          setTimeout(progress, 100);
+        }
+        setTimeout(progress, 100);
+
+        startWatch();
 
   			return false;
   		}
   		
   		function onJsonpResponse(form_id, entry_id)
       {
-        $("#loading").hide();
+        $("#progress_create").hide();
+        $("#response").show();
 
         var code = $("#code");
         code.text("<script type=\"text/javascript\" src=\"http://neomparam.github.io/feeduck/feeduck.js\"></scr" + "ipt><script>Feeduck.init({form_id:\""+form_id+"\",entry_id:\""+entry_id+"\"})</scr" + "ipt>");
 
-        loadFiles(function(files) {
-            var ul = $("#files");
-            ul.html("");
-
-            for ( var i = 0 ; i < files.length; i++ )
-            {
-              var f = files[i];
-              if ( f == undefined )
-                continue;
-
-              var li = $("<li></li>");
-              li.text(f.title);
-              li.appendTo(ul);
-            }
-        });
+        loadFiles();
   		}
 
       function handleClientLoad()
       {
-        gapi.client.load('drive', 'v2');
-        window.setTimeout(checkAuth, 1);
+        gapi.client.load('drive', 'v2', function() {window.setTimeout(checkAuth, 1)});
       }
 
       var config = {
@@ -71,30 +78,12 @@
       {
         if ( authResult && !authResult.error )
         {
-          $("#panLogin").hide();
-          $("#panMain").show();
-          loadFiles(function(files) {
-            var ul = $("#files");
-            ul.html("");
-
-            for ( var i = 0 ; i < files.length; i++ )
-            {
-              var f = files[i];
-              if ( f == undefined )
-                continue;
-
-              var li = $("<li></li>");
-              li.text(f.title);
-              li.appendTo(ul);
-            }
-          });
-
-          // startWatch();
+          showPage('page_main');
+          loadFiles();
         }
         else
         {
-          $("#panLogin").show();
-          $("#panMain").hide();
+          showPage("page_login");
           $("#btnLogin").click(function() {
             config.immediate = false
             gapi.auth.authorize(config, resultAuth);
@@ -106,32 +95,53 @@
 
       function startWatch()
       {
-        var request = gapi.client.drive.changes.list({includeDeleted: false, includeSubscribed: false, maxResults: 1});
+        // WTF!!!
+        var request = gapi.client.drive.changes.list({includeDeleted: true, includeSubscribed: true, maxResults: 1});
         request.execute(function(resp) {
-          largestChangeId = resp.largestChangeId + 1;
-          setTimeout(watching, 100);
-        });
-      }
-
-      function watching()
-      {
-        var request = gapi.client.drive.changes.list({pageToken: largestChangeId});
-        request.execute(function(resp) {
-          if ( largestChangeId == resp.largestChangeId )
-          {
-          }
           largestChangeId = resp.largestChangeId + 1;
           setTimeout(watching, 1000);
         });
       }
 
-      function loadFiles(callback)
+      function watching()
       {
+        var request = gapi.client.drive.changes.list({maxResults: 1, startChangeId: largestChangeId});
+        request.execute(function(resp) {
+          if ( resp.largestChangeId >= largestChangeId )
+          {
+            // loadFiles();
+            setProgress(50);
+            largestChangeId = resp.largestChangeId + 1;
+            return;
+          }
+          setTimeout(watching, 1000);
+        });
+      }
+
+      function loadFiles()
+      {
+        var showFiles = function(files) {
+          var ul = $("#files");
+          ul.html("");
+
+          for ( var i = 0 ; i < files.length; i++ )
+          {
+            var f = files[i];
+            if ( f == undefined )
+              continue;
+
+            var li = $("<li></li>");
+            li.text(f.title);
+            li.addClass("list-group-item");
+            li.appendTo(ul);
+          }
+        }
+
         var retrievePageOfFiles = function(request, result) {
           request.execute(function(resp) {
             if ( !resp )
             {
-              callback(result);
+              showFiles(result);
               return;
             }
             result = result.concat(resp.items);
@@ -142,7 +152,7 @@
               });
               retrievePageOfFiles(request, result);
             } else {
-              callback(result);
+              showFiles(result);
             }
           });
         }
@@ -152,53 +162,13 @@
         retrievePageOfFiles(initialRequest, []);
       }
 
-function retrieveAllChanges(callback, startChangeId) {
-  var retrievePageOfChanges = function(request, result) {
-    request.execute(function(resp) {
-      result = result.concat(resp.items);
-      var nextPageToken = resp.nextPageToken;
-      // if (nextPageToken) {
-      //   request = gapi.client.drive.changes.list({
-      //     'pageToken': nextPageToken
-      //   });
-      //   retrievePageOfChanges(request, result);
-      // } else {
-        callback(result);
-      // }
-    });
-  }
-  var initialRequest;
-  if (startChangeId) {
-    initialRequest = gapi.client.drive.changes.list({
-      'startChangeId' : startChangeId
-    });
-  } else {
-    initialRequest = gapi.client.drive.changes.list();
-  }
-  retrievePageOfChanges(initialRequest, []);
-}
-
-function watchChange(channelId, channelType, channelAddress) {
-  var resource = {
-    'id': channelId,
-    'type': channelType,
-    'address': channelAddress
-  };
-
-  var request = gapi.client.drive.changes.watch({
-    'resource': resource
-  }, function() {});
-console.log(request);
-  request.execute(function(channel){console.log(channel);});
-}
+      function showPage(page_id) {
+        $(".page").hide();
+        $("#"+page_id).show();
+      }
 
       $(function() {
-        $("#btnWatch").click(function() {
-//          watchChange("4ba78bf0-6a47-11e2-bcfd-0800200c9a77", "web_hook", "http://www.mistyhand.com/notification");
-          // retrieveAllChanges(function(result) {
-          //   console.log(result);
-          // });
-        });
+        $(".page").hide();
       })
   	</script>
     <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
@@ -206,36 +176,60 @@ console.log(request);
   <body>
     <div class="container">
       <header>
-        <h1>Feeduck</h1>
+        <div class="page-header">
+          <h1>Feeduck <small>description</small></h1>
+        </div>
       </header>
-      <div id="panLogin">
-        <button type="button" id="btnLogin" class="btn">Login with Google.</button>
-      </div>
-      <div id="panMain" style="display:none">
-        <div class="jumbotron">
-          <form class="form-inline" role="form" id="" name="" action="https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec" onsubmit="return create_form();">
-            <div class="form-group">
-              <label class="sr-only" for="title">Title</label>
-              <input type="text" class="form-control" name="title" id="title" placeholder="제목을 입력하세요."/>
+      <div id="content">
+        <div id="page_login" class="page">
+          <button type="button" id="btnLogin" class="btn">Login with Google.</button>
+        </div>
+        <div id="page_main" class="page">
+          <div class="jumbotron">
+            <form class="" role="form" id="" name="" action="#" onsubmit="return create_form();">
+              <div class="form-group">
+                <label for="title">Form Title</label>
+                <input type="text" class="form-control input-lg" name="title" id="title" placeholder="제목을 입력하세요."/>
+              </div>
+              <button type="submit" class="btn btn-primary input-lg" style="width:120px;font-size:18px;">Create</button>
+              <div id="progress_create" class="progress progress-striped active" style="margin-top:20px;display:none;">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
+              </div>
+            </form>
+            <div id="response" style="display:none;margin-top:20px;">
+              <label>Form이 생성되었습니다. 아래의 코드를 붙여넣기 하세요.</label>
+              <textarea id="code" class="form-control" rows="5"></textarea>
             </div>
-            <button type="submit" class="btn btn-default">Submit</button><img id="loading" src="http://i.stack.imgur.com/FhHRx.gif" style="display:none;margin-left:20px;"/>
-          </form>
-          <div id="response">
-            <label>아래의 코드를 복붙하세요.</label>
-            <textarea id="code" class="form-control" rows="5"></textarea>
           </div>
-        </div>
-        <div>
-          <button id="btnWatch">Watch</button>
-          <h2>Files</h2>
-          <ul id="files">
+          <h2>Forms<!--button type="button" id="btn_create" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modal_create">Create Form</button--></h2>
+          <ul id="files" class="list-group">
           </ul>
+          <div>
+            <button id="btnWatch">Watch</button>
+          </div>
+          <div id="modal_create" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                  <h4 class="modal-title">Modal title</h4>
+                </div>
+                <div class="modal-body">
+                  <p>One fine body&hellip;</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary">Create</button>
+                </div>
+              </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+          </div><!-- /.modal -->
         </div>
       </div>
-      <footer>
-        Feeduck is maintained by <a href="https://github.com/jangxyz">Kim, Jang-hwan</a> and <a href="https://github.com/neomparam">neomparam</a><br>
-        This page was generated by <a href="http://pages.github.com">GitHub Pages</a>.
+      <footer style="border-top: 1px solid #EEEEEE;margin: 20px 0 40px;padding-top: 9px;">
+        Feeduck is maintained by <a href="https://github.com/jangxyz">Kim, Jang-hwan</a> and <a href="https://github.com/neomparam">neomparam</a>.
       </footer>
     </div>
+    <script src="/bootstrap-3.0.1-dist/dist/js/bootstrap.min.js"></script>
   </body>
 </html>
