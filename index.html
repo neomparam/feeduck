@@ -58,7 +58,21 @@
         $("#response").show();
 
         var code = $("#code");
-        code.text("<script type=\"text/javascript\" src=\"http://neomparam.github.io/feeduck/feeduck.js\"></scr" + "ipt>\n<script>Feeduck.init({form_id:\""+form_id+"\",entry_id:\""+entry_id+"\"})</scr" + "ipt>");
+        code.text('' +
+          '<script src="http://code.jquery.com/jquery-1.10.2.min.js"></scr' + 'ipt>\n' +
+          '<script type="text/javascript" src="http://neomparam.github.io/feeduck/feeduck.jquery.js"></scr' + 'ipt>\n' + 
+          '<link rel="stylesheet" href="http://neomparam.github.io/feeduck/feeduck.css" type="text/css" />\n' + 
+          '<script>\n' + 
+          '\tFeeduck.init({\n' +
+          '\t\tform_id: "'+form_id+'",\n' +
+          '\t\tentry_id: "'+entry_id+'",\n' +
+          '\t\tplaceholder: "의견을 남겨주세요.",\n' +
+          '\t\tthanks_message: "<p>소중한 의견 감사합니다.</p>",\n' +
+          '\t\tsend_callback: function(text) {\n' +
+          '\t\t},\n' +
+          '\t});\n' +
+          '</scr' + 'ipt>'
+        );
 
         loadFiles();
   		}
