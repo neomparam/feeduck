@@ -21,6 +21,12 @@
 
   		function create_form()
       {
+        if ( document.getElementById("title").value == "" ) {
+          $("#title").parents().addClass("has-error");
+          return false;
+        }
+
+        $("#title").parents().removeClass("has-error");
   			var url = "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec";
   			var script = document.createElement("script");
   			script.setAttribute('type', 'text/javascript');
@@ -131,8 +137,9 @@
               continue;
 
             var li = $("<li></li>");
+            var img = $("<img/>");
             var a = $("<a></a>");
-            console.log(f);
+            img.attr("src", f.iconLink).attr("style", "margin-right:8px;").appendTo(li);
             a.attr("href", f.alternateLink).attr("target", "_blank").text(f.title).appendTo(li);
             li.addClass("list-group-item").appendTo(ul);
           }
@@ -158,7 +165,7 @@
           });
         }
         
-       var initialRequest = gapi.client.drive.files.list({'q': 'mimeType = "application/vnd.google-apps.form" and trashed = false and "root" in parents', 'fields':'items(alternateLink,selfLink,fileExtension,id,mimeType,title)'});
+       var initialRequest = gapi.client.drive.files.list({'q': 'mimeType = "application/vnd.google-apps.form" and trashed = false and "root" in parents', 'fields':'items(alternateLink,selfLink,iconLink,id,title)'});
         // var initialRequest = gapi.client.drive.files.list({'maxResults': 100, 'q': 'mimeType = "application/vnd.google-apps.folder" and trashed = false and "root" in parents'});
         retrievePageOfFiles(initialRequest, []);
       }
@@ -183,7 +190,7 @@
       </header>
       <div id="content">
         <div id="page_login" class="page">
-          <button type="button" id="btnLogin" class="btn">Login with Google.</button>
+          <button type="button" id="btnLogin" class="btn btn-primary btn-lg">Login with Google.</button>
         </div>
         <div id="page_main" class="page">
           <div class="jumbotron">
