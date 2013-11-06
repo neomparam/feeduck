@@ -131,9 +131,10 @@
               continue;
 
             var li = $("<li></li>");
-            li.text(f.title);
-            li.addClass("list-group-item");
-            li.appendTo(ul);
+            var a = $("<a></a>");
+            console.log(f);
+            a.attr("href", f.alternateLink).attr("target", "_blank").text(f.title).appendTo(li);
+            li.addClass("list-group-item").appendTo(ul);
           }
         }
 
@@ -157,7 +158,7 @@
           });
         }
         
-       var initialRequest = gapi.client.drive.files.list({'q': 'mimeType = "application/vnd.google-apps.form" and trashed = false and "root" in parents', 'fields':'items(fileExtension,id,mimeType,title)'});
+       var initialRequest = gapi.client.drive.files.list({'q': 'mimeType = "application/vnd.google-apps.form" and trashed = false and "root" in parents', 'fields':'items(alternateLink,selfLink,fileExtension,id,mimeType,title)'});
         // var initialRequest = gapi.client.drive.files.list({'maxResults': 100, 'q': 'mimeType = "application/vnd.google-apps.folder" and trashed = false and "root" in parents'});
         retrievePageOfFiles(initialRequest, []);
       }
@@ -204,9 +205,6 @@
           <h2>Forms<!--button type="button" id="btn_create" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modal_create">Create Form</button--></h2>
           <ul id="files" class="list-group">
           </ul>
-          <div>
-            <button id="btnWatch">Watch</button>
-          </div>
           <div id="modal_create" class="modal fade" role="dialog">
             <div class="modal-dialog">
               <div class="modal-content">
