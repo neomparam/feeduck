@@ -6,6 +6,7 @@
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     <link rel="stylesheet" type="text/css" href="bootstrap-3.0.1-dist/dist/css/bootstrap.min.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="non-responsive.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="assets/feeduck-host.css" media="screen" />
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -30,7 +31,7 @@
   			var url = "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec";
   			var script = document.createElement("script");
   			script.setAttribute('type', 'text/javascript');
-  			script.setAttribute('src', url + "?title=" + document.getElementById("title").value);
+  			script.setAttribute('src', url + "?a=create&c=onJsonpResponse&title=" + document.getElementById("title").value);
   			
   			document.getElementsByTagName('head')[0].appendChild(script);
 
@@ -49,7 +50,7 @@
         }
         setTimeout(progress, 100);
 
-        startWatch();
+//        startWatch();
 
   			return false;
   		}
@@ -86,8 +87,8 @@
             entry_id: entry_id
           }
         };
-        insertProperty(form_id, 'feeduck', JSON.stringify(prop), 'PUBLIC');
-        loadFiles();
+//        insertProperty(form_id, 'feeduck', JSON.stringify(prop), 'PUBLIC');
+//        loadFiles();
   		}
 
       function handleClientLoad()
@@ -100,13 +101,13 @@
         'scope': 'https://www.googleapis.com/auth/drive',
         'immediate': true
       };
-
+/*
       function checkAuth()
       {
         config.immediate = true;
         gapi.auth.authorize(config, resultAuth);
       }
-
+*/
       function resultAuth(authResult)
       {
         if ( authResult && !authResult.error )
@@ -237,22 +238,23 @@
         request.execute(function(resp) {});
       }
 
-      function showPage(page_id) {
-        $(".page").hide();
-        $("#"+page_id).show();
-      }
-
       $(function() {
-        $(".page").hide();
+        checkAuth();
       })
+
+      function test() {
+      }
   	</script>
-    <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+    <!--script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script-->
   </head>
   <body>
     <div class="container">
       <header>
         <div class="page-header">
-          <h1>Feeduck <small>description</small><span class="pull-right"><small><a href="https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec">Check Auth</a></small></span></h1>
+          <h1>Feeduck <small>description</small><span class="pull-right"></span></h1>
+        </div>
+        <div class="hidden">
+          <button id="test" class="btn btn-danger" onclick="test();">TEST</button>
         </div>
       </header>
       <div id="content">
@@ -302,7 +304,8 @@
         Feeduck is maintained by <a href="https://github.com/jangxyz">Kim, Jang-hwan</a> and <a href="https://github.com/neomparam">neomparam</a>.
       </footer>
     </div>
-    <script src="bootstrap-3.0.1-dist/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="assets/feeduck-host.js"></script>
+    <script type="text/javascript" src="bootstrap-3.0.1-dist/dist/js/bootstrap.min.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
