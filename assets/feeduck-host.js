@@ -16,7 +16,7 @@ function checkAuth()
 		.fail(function(jqxhr, textStatus, error) {
       showPage("page_login");
       $("#btnLogin").click(function(e) {
-        window.open(config.url, '_blank', 'width=500,height=650');
+        document.location.href = config.url + 'r=' + document.location.href;
         e.preventDefault();
         return false;
       });
