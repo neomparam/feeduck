@@ -4,7 +4,7 @@
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="bootstrap-3.0.1-dist/dist/css/bootstrap.min.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="bootstrap-3.0.1-dist/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="non-responsive.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="assets/feeduck-host.css" media="screen" />
     <!--[if lt IE 9]>
@@ -12,9 +12,9 @@
     <![endif]-->
     <title>Feeduck</title>
     <script type="text/javascript">
-        function createForm() 
-        {
-          if ( document.getElementById("title").value == "" ) {
+        var progress;
+        function createForm() {
+          if (document.getElementById("title").value == "") {
             $("#title").parents().addClass("has-error");
             return false;
           }
@@ -26,15 +26,16 @@
           $("#form_create input[type=text]").prop("disabled", true);
           $("#form_create button[type=submit]").prop("disabled", true);
 
+          // load GAS script
           var url = "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec";
           var script = document.createElement("script");
           script.setAttribute('type', 'text/javascript');
           script.setAttribute('src', url + "?a=create&c=onJsonpResponse&title=" + document.getElementById("title").value);
-          
           document.getElementsByTagName('head')[0].appendChild(script);
 
           // gs.create($("#title").val(), onJsonpResponse);
 
+          // show progress bar
           progress.val(0);
           progress.show();
           progress.start(10);
@@ -44,15 +45,16 @@
           return false;
         }
         
-        function onJsonpResponse(form_id, entry_id)
-        {
-          $("#progress_create").hide();
-          $("#response").show();
+        function onJsonpResponse(form_id, entry_id, spreadsheetUrl) {
+          $("#progress").hide();
           $("#form_create input[type=text]").prop("disabled", false);
           $("#form_create button[type=submit]").prop("disabled", false);
+          // show response
+          $("#response").show();
 
+          $("#response .target-spreadsheet-link").attr('href', spreadsheetUrl);
 
-          var code = $("#code");
+          var code = $("#response .code");
           code.text('' +
             '<script src="http://code.jquery.com/jquery-1.10.2.min.js"></scr' + 'ipt>\n' +
             '<script type="text/javascript" src="http://neomparam.github.io/feeduck/feeduck.jquery.js"></scr' + 'ipt>\n' + 
@@ -80,8 +82,8 @@
           // loadFiles();
         }
 
-      function checkAuth()
-      {
+      function checkAuth() {
+        showPage("waiting-page");
         gs.checkAuth(
           function () {
             showPage("page_main");
@@ -100,7 +102,7 @@
       // main
       $(function() {
         checkAuth();
-        progress = new Progress(document.getElementById("progress_create"));
+        progress = new Progress(document.getElementById("progress"));
       })
     </script>
     <!--script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script-->
@@ -122,34 +124,73 @@
               따로 저장소를 구성할 필요 없이, 구글 스프레드시트에 바로 저장하세요.
           </p>
         </div>
+        <hr />
+        <div id="waiting-page" class="page">
+          <p>
+              구글 로그인 확인 중<span class="dots">.</span>
+              <script>
+                setInterval(function() {
+                    var prevLength = $("#waiting-page .dots").text().length;
+                    var nextLength = (prevLength + 1) % 4;
+                    var dots = "";
+                    for(var i = 0; i < nextLength; i++) {
+                        dots += ".";
+                    }
+                    $("#waiting-page .dots").text(dots);
+                }, 1000);
+              </script>
+          </p>
+        </div>
+
         <div id="page_login" class="page">
           <p>
               구글 스프레드시트를 생성하기 위해 로그인이 필요합니다.
           </p>
           <button type="button" id="btnLogin" class="btn btn-primary btn-lg">Login with Google.</button>
         </div>
+
         <div id="page_main" class="page">
           <div class="jumbotron">
+
             <form class="" role="form" id="form_create" name="" action="#" onsubmit="return createForm();">
               <div class="form-group">
-                <label for="title">Form Title</label>
-                <input type="text" class="form-control input-lg" name="title" id="title" placeholder="제목을 입력하세요."/>
+                <h3>스프레드시트 생성</h3>
+                <input type="text" class="form-control input-lg" name="title" id="title" placeholder="저장할 스프레드시트 이름을 입력하세요."/>
               </div>
               <button type="submit" class="btn btn-primary input-lg" style="width:120px;font-size:18px;">Create</button>
-              <div id="progress_create" class="progress progress-striped active" style="margin-top:20px;display:none;">
-                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
+              <div id="progress" style="margin-top:20px;display:none;">
+                <p>구글에 접속하여 스프레드시트를 생성 중입니다.</p>
+                <div id="progress_create" class="progress progress-striped active">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
+                </div>
               </div>
             </form>
+
             <div id="response" style="display:none;margin-top:20px;">
-              <label>Form이 생성되었습니다. 아래의 코드를 붙여넣기 하세요.</label>
-              <textarea id="code" class="form-control" rows="13"></textarea>
+              <h3>스프레드시트를 생성이 완료되었습니다.</h3>
+
+              <p>아래 코드를 웹사이트에 붙여넣으면 피드백을 받을 수 있습니다.</p>
+              <textarea id="code" class="code form-control" rows="13"></textarea>
+
+              <p>
+                설문 결과는 <a class="target-spreadsheet-link" href="">
+                    <img src="assets/google-spreadsheet.favicon.png" style="position:relative; bottom: 3px;"/> 여기
+                </a>에서 확인하세요
+              </p>
             </div>
           </div>
-          <h2>Forms<span class="pull-right"><a href="https://drive.google.com" target="_blank"><small>Google Drive</small></a></span></h2>
+
+          <!--
+          <h2>
+            Forms
+            <span class="pull-right"><a href="https://drive.google.com" target="_blank"><span style="font-size: 50%;">Google Drive</span></a></span>
+          </h2>
           <ul id="files" class="list-group">
+          -->
           </ul>
         </div>
       </div>
+
       <footer style="border-top: 1px solid #EEEEEE;margin: 20px 0 40px;padding-top: 9px;">
         Feeduck is maintained by <a href="https://github.com/jangxyz">Kim, Jang-hwan</a> and <a href="https://github.com/neomparam">neomparam</a>.
       </footer>

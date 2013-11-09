@@ -1,14 +1,13 @@
 var config = {
 	url: "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec"
-}
+};
 
-function showPage(page_id)
-{
+function showPage(page_id) {
 	$(".page").hide();
 	$("#"+page_id).show();
 }
 
-var gs = new function() {
+var gs = new (function GS() {
   var ajax = function(action, done, fail) {
     return $.ajax({
       url: config.url,
@@ -25,17 +24,36 @@ var gs = new function() {
   };
 
   this.checkAuth = function(done, fail) {
-    return ajax('login', done, fail);
+    // swallow Google AppScript error and blame non-login
+    $(window).on('error.feeduck-checkauth', function FeeduckCheckAuthErrorHandler(e) {
+        if (e.originalEvent.message === "Script error.") {
+            if (console && console.log) {
+                console.error(e);
+            }
+            e.preventDefault();
+            return;
+        }
+    });
+
+    // ajax call
+    var ajaxCall = ajax('login', done, fail);
+
+    // turn off swallow
+    ajaxCall.always(function() {
+        $(window).off('error.feeduck-checkauth');
+    });
+
+    return ajaxCall;
   };
 
   this.create = function(title, done, fail) {
     return ajax('create', title, done, fail);
-  }
-};
+  };
+})();
 
 var Progress = function(dom) {
   var wrapper = $(dom);
-  var bar = wrapper.children(".progress-bar");
+  var bar = wrapper.find(".progress-bar");
   var _stopped = true;
   var _tick = 100;
   var _self = this;
@@ -45,9 +63,9 @@ var Progress = function(dom) {
   };
 
   this.val = function(value) {
-    if ( value == undefined )
+    if ( value === undefined )
     {
-      return parseInt(bar.attr("aria-valuenow"));
+      return parseInt(bar.attr("aria-valuenow"), 10);
     }
     else
     {
@@ -62,19 +80,20 @@ var Progress = function(dom) {
     if ( _stopped )
       return;
 
+    // +1 val
     _self.val(_self.val() + 1);
     setTimeout(_progress, _tick);
-  }
+  };
 
   this.start = function(sec) {
-    _tick = sec * 10 // == sec * 1000 / 100;
+    _tick = sec * 10; // == sec * 1000 / 100;
     _stopped = false;
     _progress();
-  }
+  };
 
   this.stop = function() {
     _stopped = true;
-  }
+  };
 };
 
 /*
