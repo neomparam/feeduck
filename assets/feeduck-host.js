@@ -10,7 +10,7 @@ function showPage(page_id)
 
 var gs = new function() {
   var ajax = function(action, done, fail) {
-    $.ajax({
+    return $.ajax({
       url: config.url,
       data: {a: action},
       dataType: "jsonp",
@@ -25,11 +25,11 @@ var gs = new function() {
   };
 
   this.checkAuth = function(done, fail) {
-    ajax('login', done, fail);
+    return ajax('login', done, fail);
   };
 
   this.create = function(title, done, fail) {
-    ajax('create', title, done, fail);
+    return ajax('create', title, done, fail);
   }
 };
 

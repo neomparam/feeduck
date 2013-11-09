@@ -11,74 +11,74 @@
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <title>Feeduck</title>
-  	<script type="text/javascript">
-    	function createForm()
-      {
-        if ( document.getElementById("title").value == "" ) {
-          $("#title").parents().addClass("has-error");
+    <script type="text/javascript">
+        function createForm() 
+        {
+          if ( document.getElementById("title").value == "" ) {
+            $("#title").parents().addClass("has-error");
+            return false;
+          }
+
+          $("#title").parents().removeClass("has-error");
+
+          $("#response").hide();
+          $("#form_create input[type=text]").blur();
+          $("#form_create input[type=text]").prop("disabled", true);
+          $("#form_create button[type=submit]").prop("disabled", true);
+
+          var url = "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec";
+          var script = document.createElement("script");
+          script.setAttribute('type', 'text/javascript');
+          script.setAttribute('src', url + "?a=create&c=onJsonpResponse&title=" + document.getElementById("title").value);
+          
+          document.getElementsByTagName('head')[0].appendChild(script);
+
+          // gs.create($("#title").val(), onJsonpResponse);
+
+          progress.val(0);
+          progress.show();
+          progress.start(10);
+
+          // startWatch();
+
           return false;
         }
-
-        $("#title").parents().removeClass("has-error");
-
-        $("#response").hide();
-        $("#form_create input[type=text]").blur();
-        $("#form_create input[type=text]").prop("disabled", true);
-        $("#form_create button[type=submit]").prop("disabled", true);
-
-        var url = "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec";
-        var script = document.createElement("script");
-        script.setAttribute('type', 'text/javascript');
-        script.setAttribute('src', url + "?a=create&c=onJsonpResponse&title=" + document.getElementById("title").value);
         
-        document.getElementsByTagName('head')[0].appendChild(script);
-
-        // gs.create($("#title").val(), onJsonpResponse);
-
-        progress.val(0);
-        progress.show();
-        progress.start(10);
-
-        // startWatch();
-
-  			return false;
-  		}
-  		
-  		function onJsonpResponse(form_id, entry_id)
-      {
-        $("#progress_create").hide();
-        $("#response").show();
-        $("#form_create input[type=text]").prop("disabled", false);
-        $("#form_create button[type=submit]").prop("disabled", false);
+        function onJsonpResponse(form_id, entry_id)
+        {
+          $("#progress_create").hide();
+          $("#response").show();
+          $("#form_create input[type=text]").prop("disabled", false);
+          $("#form_create button[type=submit]").prop("disabled", false);
 
 
-        var code = $("#code");
-        code.text('' +
-          '<script src="http://code.jquery.com/jquery-1.10.2.min.js"></scr' + 'ipt>\n' +
-          '<script type="text/javascript" src="http://neomparam.github.io/feeduck/feeduck.jquery.js"></scr' + 'ipt>\n' + 
-          '<link rel="stylesheet" href="http://neomparam.github.io/feeduck/feeduck.css" type="text/css" />\n' + 
-          '<script>\n' + 
-          '\tFeeduck.init({\n' +
-          '\t\tform_id: "'+form_id+'",\n' +
-          '\t\tentry_id: "'+entry_id+'",\n' +
-          '\t\tplaceholder: "의견을 남겨주세요.",\n' +
-          '\t\tthanks_message: "<p>소중한 의견 감사합니다.</p>",\n' +
-          '\t\tsend_callback: function(text) {\n' +
-          '\t\t},\n' +
-          '\t});\n' +
-          '</scr' + 'ipt>'
-        );
+          var code = $("#code");
+          code.text('' +
+            '<script src="http://code.jquery.com/jquery-1.10.2.min.js"></scr' + 'ipt>\n' +
+            '<script type="text/javascript" src="http://neomparam.github.io/feeduck/feeduck.jquery.js"></scr' + 'ipt>\n' + 
+            '<link rel="stylesheet" href="http://neomparam.github.io/feeduck/feeduck.css" type="text/css" />\n' + 
+            '<script>\n' + 
+            '\tFeeduck.init({\n' +
+            '\t\tform_id: "'+form_id+'",\n' +
+            '\t\tentry_id: "'+entry_id+'",\n' +
+            '\t\tplaceholder: "의견을 남겨주세요.",\n' +
+            '\t\tthanks_message: "<p>소중한 의견 감사합니다.</p>",\n' +
+            '\t\tsend_callback: function(text) {\n' +
+            '\t\t},\n' +
+            '\t});\n' +
+            '</scr' + 'ipt>'
+          );
 
-        // prop = {
-        //   version: '0.1',
-        //   file_id: form_id,
-        //   data: {
-        //     entry_id: entry_id
-        //   }
-        // };
-        // insertProperty(form_id, 'feeduck', JSON.stringify(prop), 'PUBLIC');
-        // loadFiles();
-  		}
+          // prop = {
+          //   version: '0.1',
+          //   file_id: form_id,
+          //   data: {
+          //     entry_id: entry_id
+          //   }
+          // };
+          // insertProperty(form_id, 'feeduck', JSON.stringify(prop), 'PUBLIC');
+          // loadFiles();
+        }
 
       function checkAuth()
       {
@@ -97,26 +97,35 @@
         );
       }
 
+      // main
       $(function() {
         checkAuth();
-
         progress = new Progress(document.getElementById("progress_create"));
       })
-  	</script>
+    </script>
     <!--script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script-->
   </head>
   <body>
     <div class="container">
       <header>
         <div class="page-header">
-          <h1>Feeduck <small>description</small></h1>
+          <h1>Feeduck <small>간편하게 피드백을 받으세요!</small></h1>
         </div>
         <div class="hidden">
           <button id="test" class="btn btn-danger" onclick="test();">TEST</button>
         </div>
       </header>
       <div id="content">
+        <div>
+          <p>
+              사용자 건의사항을 바로 받아볼 수 있습니다. <br>
+              따로 저장소를 구성할 필요 없이, 구글 스프레드시트에 바로 저장하세요.
+          </p>
+        </div>
         <div id="page_login" class="page">
+          <p>
+              구글 스프레드시트를 생성하기 위해 로그인이 필요합니다.
+          </p>
           <button type="button" id="btnLogin" class="btn btn-primary btn-lg">Login with Google.</button>
         </div>
         <div id="page_main" class="page">
