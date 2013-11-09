@@ -9,11 +9,12 @@
             var feedback = new this();
             var opts = $.extend({}, feedback.default_options, options);
 
-            feedback.createFeedbackBox(opts);
+            feedback.$el = feedback.createFeedbackBox(opts);
             if (!_initialized) {
                 _initialized = true;
-                return feedback.bindEvents(opts);
+                feedback.bindEvents(opts);
             }
+            return feedback;
         };
 
         Feeduck.prototype.default_options = {
