@@ -52,11 +52,11 @@
         // show response
         $("#response").show();
 
-        $("#response .target-spreadsheet-link").attr('href', spreadsheetUrl);
-
         var form_id = data.formId;
         var entry_id = data.entryId;
         var spreadsheetUrl = data.spreadsheetUrl;
+
+        $("#response .target-spreadsheet-link").attr('href', spreadsheetUrl);
 
         var code = $("#response .code");
         code.text('' +
