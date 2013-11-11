@@ -1,5 +1,5 @@
 var config = {
-	url: "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec"
+	url: "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/dev"
 };
 
 function showPage(page_id) {
@@ -16,10 +16,10 @@ var gs = new (function GS() {
       jsonp: "c"
     })
       .done(function(jqxhr, textStatus, error) {
-        done();
+        done(jqxhr);
       })
       .fail(function(jqxhr, textStatus, error) {
-        fail();
+        fail(jqxhr);
       });
   };
 
@@ -46,8 +46,12 @@ var gs = new (function GS() {
     return ajaxCall;
   };
 
-  this.create = function(title, done, fail) {
-    return ajax('create', title, done, fail);
+  // this.create = function(title, done, fail) {
+  //   return ajax('create', title, done, fail);
+  // };
+
+  this.getList = function(done, fail) {
+    return ajax('list', done, fail);
   };
 })();
 

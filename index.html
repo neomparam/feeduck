@@ -12,81 +12,81 @@
     <![endif]-->
     <title>Feeduck</title>
     <script type="text/javascript">
-        var progress;
-        function createForm() {
-          if (document.getElementById("title").value == "") {
-            $("#title").parents().addClass("has-error");
-            return false;
-          }
+      var progress;
 
-          $("#title").parents().removeClass("has-error");
-
-          $("#response").hide();
-          $("#form_create input[type=text]").blur();
-          $("#form_create input[type=text]").prop("disabled", true);
-          $("#form_create button[type=submit]").prop("disabled", true);
-
-          // load GAS script
-          var url = "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec";
-          var script = document.createElement("script");
-          script.setAttribute('type', 'text/javascript');
-          script.setAttribute('src', url + "?a=create&c=onJsonpResponse&title=" + document.getElementById("title").value);
-          document.getElementsByTagName('head')[0].appendChild(script);
-
-          // gs.create($("#title").val(), onJsonpResponse);
-
-          // show progress bar
-          progress.val(0);
-          progress.show();
-          progress.start(10);
-
-          // startWatch();
-
+      function createForm() {
+        if (document.getElementById("title").value == "") {
+          $("#title").parents().addClass("has-error");
           return false;
         }
-        
-        function onJsonpResponse(form_id, entry_id, spreadsheetUrl) {
-          $("#progress").hide();
-          $("#form_create input[type=text]").prop("disabled", false);
-          $("#form_create button[type=submit]").prop("disabled", false);
-          // show response
-          $("#response").show();
 
-          $("#response .target-spreadsheet-link").attr('href', spreadsheetUrl);
+        $("#title").parents().removeClass("has-error");
 
-          var code = $("#response .code");
-          code.text('' +
-            '<script src="http://code.jquery.com/jquery-1.10.2.min.js"></scr' + 'ipt>\n' +
-            '<script type="text/javascript" src="http://neomparam.github.io/feeduck/feeduck.jquery.js"></scr' + 'ipt>\n' + 
-            '<link rel="stylesheet" href="http://neomparam.github.io/feeduck/feeduck.css" type="text/css" />\n' + 
-            '<script>\n' + 
-            '\tFeeduck.init({\n' +
-            '\t\tform_id: "'+form_id+'",\n' +
-            '\t\tentry_id: "'+entry_id+'",\n' +
-            '\t\tplaceholder: "의견을 남겨주세요.",\n' +
-            '\t\tthanks_message: "<p>소중한 의견 감사합니다.</p>",\n' +
-            '\t\tsend_callback: function(text) {\n' +
-            '\t\t},\n' +
-            '\t});\n' +
-            '</scr' + 'ipt>'
-          );
+        $("#response").hide();
+        $("#form_create input[type=text]").blur();
+        $("#form_create input[type=text]").prop("disabled", true);
+        $("#form_create button[type=submit]").prop("disabled", true);
 
-          // prop = {
-          //   version: '0.1',
-          //   file_id: form_id,
-          //   data: {
-          //     entry_id: entry_id
-          //   }
-          // };
-          // insertProperty(form_id, 'feeduck', JSON.stringify(prop), 'PUBLIC');
-          // loadFiles();
-        }
+        // load GAS script
+        var url = "https://script.google.com/macros/s/AKfycbzcw8Gr8Z5lLA1b9CZtYm-1__Ymr8AHxygGtlyZL2NR3nhtO5Q/exec";
+        var script = document.createElement("script");
+        script.setAttribute('type', 'text/javascript');
+        script.setAttribute('src', url + "?a=create&c=onJsonpResponse&title=" + document.getElementById("title").value);
+        document.getElementsByTagName('head')[0].appendChild(script);
+
+        // gs.create($("#title").val(), onJsonpResponse);
+
+        // show progress bar
+        progress.val(0);
+        progress.show();
+        progress.start(10);
+
+        return false;
+      }
+
+      function onJsonpResponse(form_id, entry_id, spreadsheetUrl) {
+        $("#progress").hide();
+        $("#form_create input[type=text]").prop("disabled", false);
+        $("#form_create button[type=submit]").prop("disabled", false);
+        // show response
+        $("#response").show();
+
+        $("#response .target-spreadsheet-link").attr('href', spreadsheetUrl);
+
+        var code = $("#response .code");
+        code.text('' +
+          '<script src="http://code.jquery.com/jquery-1.10.2.min.js"></scr' + 'ipt>\n' +
+          '<script type="text/javascript" src="http://neomparam.github.io/feeduck/feeduck.jquery.js"></scr' + 'ipt>\n' + 
+          '<link rel="stylesheet" href="http://neomparam.github.io/feeduck/feeduck.css" type="text/css" />\n' + 
+          '<script>\n' + 
+          '\tFeeduck.init({\n' +
+          '\t\tform_id: "'+form_id+'",\n' +
+          '\t\tentry_id: "'+entry_id+'",\n' +
+          '\t\tplaceholder: "의견을 남겨주세요.",\n' +
+          '\t\tthanks_message: "<p>소중한 의견 감사합니다.</p>",\n' +
+          '\t\tsend_callback: function(text) {\n' +
+          '\t\t},\n' +
+          '\t});\n' +
+          '</scr' + 'ipt>'
+        );
+
+        // prop = {
+        //   version: '0.1',
+        //   file_id: form_id,
+        //   data: {
+        //     entry_id: entry_id
+        //   }
+        // };
+        // insertProperty(form_id, 'feeduck', JSON.stringify(prop), 'PUBLIC');
+        // loadFiles();
+      }
 
       function checkAuth() {
         showPage("waiting-page");
         gs.checkAuth(
           function () {
             showPage("page_main");
+            gs.getList(showList);
           },
           function () {
             showPage("page_login");
@@ -97,6 +97,29 @@
             });
           }
         );
+      }
+
+      function addFile(file) {
+        var ul = $("#files");
+
+        var li = $("<li></li>");
+        var a = $("<a></a>");
+        a.attr("href", file.url).attr("target", "_blank").text(file.title).appendTo(li);
+        li.addClass("list-group-item").appendTo(ul);
+      }
+
+      function showList(files) {
+        var ul = $("#files");
+        ul.html("");
+
+        for ( var i = 0 ; i < files.length; i++ )
+        {
+          var f = files[i];
+          if ( f == undefined )
+            continue;
+
+          addFile(f);
+        }
       }
 
       // main
@@ -180,14 +203,14 @@
             </div>
           </div>
 
-          <!--
+          <!-- 생성된 form or spreadsheet 보여주기 -->
           <h2>
-            Forms
+            Files
             <span class="pull-right"><a href="https://drive.google.com" target="_blank"><span style="font-size: 50%;">Google Drive</span></a></span>
           </h2>
           <ul id="files" class="list-group">
-          -->
           </ul>
+          <!-- 생성된 form or spreadsheet 보여주기 -->
         </div>
       </div>
 
