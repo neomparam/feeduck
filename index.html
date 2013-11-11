@@ -44,7 +44,8 @@
         return false;
       }
 
-      function onJsonpResponse(form_id, entry_id, spreadsheetUrl) {
+//      function onJsonpResponse(form_id, entry_id, spreadsheetUrl) {
+      function onJsonpResponse(data) {
         $("#progress").hide();
         $("#form_create input[type=text]").prop("disabled", false);
         $("#form_create button[type=submit]").prop("disabled", false);
@@ -52,6 +53,10 @@
         $("#response").show();
 
         $("#response .target-spreadsheet-link").attr('href', spreadsheetUrl);
+
+        var form_id = data.formId;
+        var entry_id = data.entryId;
+        var spreadsheetUrl = data.spreadsheetUrl;
 
         var code = $("#response .code");
         code.text('' +
@@ -70,6 +75,8 @@
           '</scr' + 'ipt>'
         );
 
+//        addFile(data);
+
         // prop = {
         //   version: '0.1',
         //   file_id: form_id,
@@ -79,6 +86,8 @@
         // };
         // insertProperty(form_id, 'feeduck', JSON.stringify(prop), 'PUBLIC');
         // loadFiles();
+
+//        gs.getList(showList);
       }
 
       function checkAuth() {
@@ -104,7 +113,7 @@
 
         var li = $("<li></li>");
         var a = $("<a></a>");
-        a.attr("href", file.url).attr("target", "_blank").text(file.title).appendTo(li);
+        a.attr("href", file.spreadsheetUrl).attr("target", "_blank").text(file.title).appendTo(li);
         li.addClass("list-group-item").appendTo(ul);
       }
 
