@@ -5,6 +5,16 @@
 
         function Feeduck() {}
 
+        Feeduck.prototype.default_options = {
+            //placeholder: 'Feedback? Let us know here.',
+            //thanks_message: "<p>Thanks for your feedback!</p>\n<div class=\"indent\">\n  - siong1987\n</div>",
+            //button_name: "Send",
+            placeholder: '의견을 남겨주세요.',
+            thanks_message: "<p>소중한 의견 감사합니다.</p>",
+            button_name: "전송",
+            send_callback: function(text) {}
+        };
+
         Feeduck.init = function(options) {
             var feedback = new this();
             var opts = $.extend({}, feedback.default_options, options);
@@ -15,16 +25,6 @@
                 feedback.bindEvents(opts);
             }
             return feedback;
-        };
-
-        Feeduck.prototype.default_options = {
-            //placeholder: 'Feedback? Let us know here.',
-            //thanks_message: "<p>Thanks for your feedback!</p>\n<div class=\"indent\">\n  - siong1987\n</div>",
-            //button_name: "Send",
-            placeholder: '의견을 남겨주세요.',
-            thanks_message: "<p>소중한 의견 감사합니다.</p>",
-            button_name: "전송",
-            send_callback: function(text) {}
         };
 
         /*
@@ -40,7 +40,7 @@
                         <div class="success">thanks!</div>
                     </div>
                 </div>
-                <iframe name="feeduck-iframe" id="feeduck-iframe"></iframe>
+                <iframe name="feeduck-iframe" id="feeduck-iframe" style="display: none;"></iframe>
             </div>
          */
 
@@ -64,7 +64,7 @@
                     "    <div class='success'>" + opts.thanks_message + "</div>\n" + 
                     "  </div>\n" + 
                     "</div>\n" + 
-                    "<iframe name='feeduck-iframe' id='feeduck-iframe'></iframe>\n" +
+                    "<iframe name='feeduck-iframe' id='feeduck-iframe' style='display: none;'></iframe>\n" +
                     "");
         };
 

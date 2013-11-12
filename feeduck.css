@@ -1,16 +1,8 @@
-#feeduck textarea:focus {
-  outline: none;
+#feeduck * {
+  box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
 }
-
-#feeduck div {
-  display: block;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font-size: inherit;
-  vertical-align: baseline;
-}
-
 #feeduck {
   position: fixed;
   bottom: 15px;
@@ -26,6 +18,19 @@
   -ms-transition-duration: 0.5s;
   -o-transition-duration: 0.5s;
   transition-duration: 0.5s;
+}
+
+#feeduck textarea:focus {
+  outline: none;
+}
+
+#feeduck div {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: inherit;
+  vertical-align: baseline;
 }
 
 #feeduck .feeduck-container {
@@ -186,10 +191,6 @@
 
 #feeduck .feeduck-container .submit {
   width: 100px;
-}
-
-#feeduck iframe {
-  display: none;
 }
 
 #feeduck .button {
