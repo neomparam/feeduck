@@ -152,7 +152,16 @@
     <div class="container">
       <header>
         <div class="page-header">
-          <h1>Feeduck <small>간편하게 피드백을 받으세요!</small><span class="pull-right"><a href="https://drive.google.com" target="_blank"><span style="font-size: 40%;">Google Drive</span></a></span></h1>
+          <h1>
+              Feeduck <small>간편하게 피드백을 받으세요!</small>
+              <span class="pull-right">
+                  <a href="https://drive.google.com" target="_blank">
+                      <!--img src="google-drive-100x100.png" width="50" height="50" /-->
+                      <img src="assets/google-docs-100x100.png" alt="Google Drive" width="50" height="50" />
+                      <span style="font-size: 40%;">Google Drive</span>
+                  </a>
+              </span>
+          </h1>
         </div>
         <div class="hidden">
           <button id="test" class="btn btn-danger" onclick="test();">TEST</button>
@@ -162,75 +171,145 @@
         <div>
           <p>
               사용자 건의사항을 바로 받아볼 수 있습니다. <br>
-              따로 저장소를 구성할 필요 없이, 구글 스프레드시트에 바로 저장하세요.
-          </p>
-        </div>
-        <hr />
-        <div id="waiting-page" class="page">
-          <p>
-              구글 로그인 확인 중<span class="dots">.</span>
-              <script>
-                setInterval(function() {
-                    var prevLength = $("#waiting-page .dots").text().length;
-                    var nextLength = (prevLength + 1) % 4;
-                    var dots = "";
-                    for(var i = 0; i < nextLength; i++) {
-                        dots += ".";
-                    }
-                    $("#waiting-page .dots").text(dots);
-                }, 1000);
-              </script>
-          </p>
-        </div>
-
-        <div id="page_login" class="page">
-          <p>
-              구글 스프레드시트를 생성하기 위해 로그인이 필요합니다.
-          </p>
-          <button type="button" id="btnLogin" class="btn btn-primary btn-lg">Login with Google.</button>
-        </div>
-
-        <div id="page_main" class="page">
-          <div class="jumbotron">
-
-            <form class="" role="form" id="form_create" name="" action="#" onsubmit="return createForm();">
-              <div class="form-group">
-                <h3>스프레드시트 생성</h3>
-                <input type="text" class="form-control input-lg" name="title" id="title" placeholder="저장할 스프레드시트 이름을 입력하세요."/>
-              </div>
-              <button type="submit" class="btn btn-primary input-lg" style="width:120px;font-size:18px;">Create</button>
-              <div id="progress" style="margin-top:20px;display:none;">
-                <p>구글에 접속하여 스프레드시트를 생성 중입니다.</p>
-                <div id="progress_create" class="progress progress-striped active">
-                  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
-                </div>
-              </div>
-            </form>
-
-            <div id="response" style="display:none;margin-top:20px;">
-              <h3>스프레드시트를 생성이 완료되었습니다.</h3>
-
-              <p>아래 코드를 웹사이트에 붙여넣으면 피드백을 받을 수 있습니다.</p>
-              <textarea id="code" class="code form-control" rows="13"></textarea>
+              따로 저장소를 구성할 필요 없이, 구글 스프레드시트에 바로 저장하세요. <br>
 
               <p>
-                설문 결과는 <a class="target-spreadsheet-link" href="" target="_blank">
-                    <img src="assets/google-spreadsheet.favicon.png" style="position:relative; bottom: 3px;"/> 여기
-                </a>에서 확인하세요
+                  <a href="#start">바로 시작하기</a> | 
+                  <a href="#how-it-works">어떤 원리로 작동하나요?</a>
+              </p>
+          </p>
+        </div>
+
+        <div>
+            <h3 id="steps">사용법 3단계</h3>
+            <div class="row">
+                <div class="col-sm-6 col-md-4">
+                    <div class="thumbnail">
+                        <img src="assets/think-name-of-feedback-300x250.png" title="피드백 받을 이름을 정해주세요" width="200px" />
+                        <div class="caption">
+                            <h4 class="text-center">1. 피드백 받을 이름을 정해주세요</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="thumbnail">
+                        <img src="assets/paste-code-300x250.png" title="코드를 사이트 HTML 파일 맨 뒤에 붙이고" width="300px" />
+                        <div class="caption">
+                            <h4 class="text-center">2. 코드를 사이트 HTML 뒤에 붙입니다.</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="thumbnail">
+                        <img src="assets/check-user-feedback-300x250.png" title="사용자들이 입력한 피드백을 확인하면 끝!" />
+                        <div class="caption">
+                            <h4 class="text-center">3. 사용자들이 입력한 피드백을 확인!</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr />
+
+        <div>
+            <h3 id="start">시작하기</h3>
+            <div id="waiting-page" class="page jumbotron">
+              <p>
+                  구글 로그인 확인 중<span class="dots">.</span>
+                  <script>
+                    setInterval(function() {
+                        var prevLength = $("#waiting-page .dots").text().length;
+                        var nextLength = (prevLength + 1) % 4;
+                        var dots = "";
+                        for(var i = 0; i < nextLength; i++) {
+                            dots += ".";
+                        }
+                        $("#waiting-page .dots").text(dots);
+                    }, 1000);
+                  </script>
               </p>
             </div>
-          </div>
 
-          <!-- 생성된 form or spreadsheet 보여주기 -->
-          <!--
-          <h2>
-            Spreadsheets
-            <span class="pull-right"><a href="https://drive.google.com" target="_blank"><span style="font-size: 50%;">Google Drive</span></a></span>
-          </h2>
-          <ul id="files" class="list-group">
-          </ul>
-          -->
-          <!-- 생성된 form or spreadsheet 보여주기 -->
+            <div id="page_login" class="page jumbotron">
+              <p>
+                  Feeduck이 구글 스프레드시트를 생성할 수 있도록 권한을 주세요.
+              </p>
+              <button type="button" id="btnLogin" class="btn btn-primary btn-lg pull-right">Login with Google.</button>
+              <div class="clearfix"></div>
+            </div>
+
+            <hr>
+
+            <div id="page_main" class="page">
+              <div class="jumbotron">
+
+                <form class="" role="form" id="form_create" name="" action="#" onsubmit="return createForm();">
+                  <div class="form-group">
+                    <h3>스프레드시트 생성</h3>
+                    <input type="text" class="form-control input-lg" name="title" id="title" placeholder="저장할 스프레드시트 이름을 입력하세요."/>
+                  </div>
+                  <button type="submit" class="btn btn-primary input-lg" style="width:120px;font-size:18px;">Create</button>
+                  <div id="progress" style="margin-top:20px;display:none;">
+                    <p>구글에 접속하여 스프레드시트를 생성 중입니다.</p>
+                    <div id="progress_create" class="progress progress-striped active">
+                      <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
+                    </div>
+                  </div>
+                </form>
+
+                <div id="response" style="display:none;margin-top:20px;">
+                  <h3>스프레드시트를 생성이 완료되었습니다.</h3>
+
+                  <p>아래 코드를 웹사이트에 붙여넣으면 피드백을 받을 수 있습니다.</p>
+                  <textarea id="code" class="code form-control" rows="13"></textarea>
+
+                  <p>
+                    설문 결과는 <a class="target-spreadsheet-link" href="" target="_blank">
+                        <img src="assets/google-spreadsheet.favicon.png" style="position:relative; bottom: 3px;"/> 여기
+                    </a>에서 확인하세요
+                  </p>
+                </div>
+              </div>
+
+              <!-- 생성된 form or spreadsheet 보여주기 -->
+              <!--
+              <h2>
+                Spreadsheets
+                <span class="pull-right"><a href="https://drive.google.com" target="_blank"><span style="font-size: 50%;">Google Drive</span></a></span>
+              </h2>
+              <ul id="files" class="list-group">
+              </ul>
+              -->
+              <!-- 생성된 form or spreadsheet 보여주기 -->
+            </div>
+        </div>
+
+        <div>
+            <h3 id="how-it-works">작동 원리</h3>
+            <p>
+                어떤 원리로 작동하는지 궁금하신가요?
+            </p>
+            <ol>
+                <li>Feeduck &rarr; Google:
+                사용자가 허락하면 Feeduck이 구글 드라이브에 스프레드시트와 구글 폼을 생성합니다.
+                </li>
+
+                <li>Google &rarr; Feeduck:
+                생성된 구글 스프레드시트와 폼의 아이디를 가져와서 사용자마다 고유한 코드를 생성합니다.
+                </li>
+
+                <li>Feeduck &rarr; 사용자:
+                    Feeduck이 알려준 코드를 사용자 웹사이트의 HTML 코드 안에 붙여 넣습니다. 이 부분은 Feeduck이 대신해줄 수가 없네요. <br>
+                    Feeduck 코드가 작동하면 사용자 사이트에는 건의사항 입력란이 생기게 됩니다.
+                </li>
+
+                <li>방문자 &rarr; Google:
+                    사용자 사이트에 방문한 방문자가 입력란을 통해 건의사항을 입력하면, Feeduck 코드가 내용을 구글 스프레드시트에 입력해줍니다.</li>
+
+                <li>사용자 &rarr; Google: 
+                사용자는 자신의 구글 드라이브에 가서 스프레드시트를 확인할 수 있습니다.</li>
+            </ol>
         </div>
       </div>
 
@@ -253,7 +332,7 @@
       Feeduck.init({
         form_id: "1U7o3Ll74n4p9rCc8vADJWtdPtohhn9lYTasxx9203Uc",
         entry_id: "323808949",
-        placeholder: "의견을 남겨주세요.",
+        placeholder: "Feeduck에 의견을 남겨주세요.",
         thanks_message: "<p>소중한 의견 감사합니다.</p>",
         send_callback: function(text) {
         },
